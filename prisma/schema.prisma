@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model citas {
+  id                   Int                  @id @default(autoincrement())
+  cliente_id           String?              @db.VarChar(255)
+  fecha_cita           Int
+  confirmado           Int?                 @default(0) @db.TinyInt
+  clientes             clientes?            @relation(fields: [cliente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "citas_ibfk_1")
+  horarios_disponibles horarios_disponibles @relation(fields: [fecha_cita], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "citas_ibfk_2")
+
+  @@index([cliente_id], map: "cliente_id")
+  @@index([fecha_cita], map: "fecha_cita")
+}
+
+model clientes {
+  id     String  @id @db.VarChar(255)
+  nombre String? @db.VarChar(255)
+  numero String? @db.VarChar(55)
+  citas  citas[]
+}
+
+model horarios_disponibles {
+  id         Int     @id @default(autoincrement())
+  dia_semana String? @db.VarChar(10)
+  hora       String? @db.VarChar(25)
+  ocupado    Int?    @default(0) @db.TinyInt
+  citas      citas[]
+}
